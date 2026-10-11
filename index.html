@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Lightbearer — Town of Grace | Christian Scripture Adventure</title>
+<meta name="description" content="A free-living Christian game: use Scriptures to deliver, settle NPCs, fight darkness and overcome temptation in Town & City." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+  <!-- Top HUD -->
+  <header id="hud">
+    <div class="hud-left">
+      <div id="logo">✝ <span>Lightbearer</span><small>Town of Grace</small></div>
+    </div>
+    <div class="hud-stats">
+      <div class="stat" title="Heart / Health"><span class="ico">❤️</span><div class="bar"><div id="hpFill"></div></div><span id="hpText">100</span></div>
+      <div class="stat" title="Faith XP"><span class="ico">✨</span><div class="bar faith"><div id="faithFill"></div></div><span id="faithText">Lv 1</span></div>
+      <div class="stat" title="Light"><span class="ico">🕯️</span><span id="lightText">100</span></div>
+      <div class="stat souls" title="Souls delivered / settled"><span class="ico">🕊️</span><span id="soulsText">0</span></div>
+      <div class="stat" title="Forces defeated"><span class="ico">⚔️</span><span id="foesText">0</span></div>
+      <div class="stat" title="Temptations overcome"><span class="ico">🛡️</span><span id="temptText">0</span></div>
+      <div class="stat" title="Time of day"><span class="ico" id="dayIco">☀️</span><span id="dayText">Day 1</span></div>
+    </div>
+    <div class="hud-right">
+      <button id="btnBible" class="hbtn" title="Open Bible (B)">📖 Bible</button>
+      <button id="btnQuest" class="hbtn" title="Quest / Help (Q)">✦ Quest</button>
+      <button id="btnMute" class="hbtn" title="Mute">🔊</button>
+    </div>
+  </header>
+
+  <main id="stageWrap">
+    <canvas id="game" width="960" height="600"></canvas>
+
+    <!-- Touch controls -->
+    <div id="touchUI">
+      <div id="joystick"><div id="stick"></div></div>
+      <div id="touchBtns">
+        <button data-act="interact">E</button>
+        <button data-act="pray">🙏</button>
+        <button data-act="attack">⚔️</button>
+      </div>
+    </div>
+
+    <!-- Verse action bar -->
+    <div id="verseBar" aria-label="Scripture arsenal"></div>
+    <div id="hint">WASD / Arrows to walk • <b>E</b> talk / enter • <b>1–6</b> speak Scripture • <b>Space</b> strike • <b>B</b> Bible • <b>🙏 Pray</b> heals at Church</div>
+
+    <!-- Dialog -->
+    <div id="dialog" class="hidden">
+      <div id="dlgHead">
+        <div id="dlgAvatar">🧑‍🌾</div>
+        <div><div id="dlgName">NPC</div><div id="dlgNeed">Need</div></div>
+        <button id="dlgClose">✕</button>
+      </div>
+      <div id="dlgText"></div>
+      <div id="dlgVerses"></div>
+      <div id="dlgActions"></div>
+    </div>
+
+    <!-- Temptation modal -->
+    <div id="temptModal" class="hidden">
+      <div class="temptCard">
+        <div class="temptTag">⚠️ TEMPTATION APPROACHES</div>
+        <h2 id="temptTitle"></h2>
+        <p id="temptDesc"></p>
+        <div id="temptVerseQ"></div>
+        <div id="temptChoices"></div>
+      </div>
+    </div>
+
+    <!-- Bible panel -->
+    <div id="biblePanel" class="hidden">
+      <div class="bibleHead"><h2>📖 Sword of the Spirit — Scripture Arsenal</h2><button id="bibleClose">✕</button></div>
+      <div id="bibleList"></div>
+      <p class="bibleFoot">“Thy word is a lamp unto my feet, and a light unto my path.” — Psalm 119:105 (KJV)</p>
+    </div>
+
+    <!-- Quest panel -->
+    <div id="questPanel" class="hidden">
+      <div class="bibleHead"><h2>✦ Calling of the Lightbearer</h2><button id="questClose">✕</button></div>
+      <div id="questBody"></div>
+    </div>
+
+    <!-- Intro -->
+    <div id="intro">
+      <div class="introCard">
+        <div class="introCross">✝</div>
+        <h1>LIGHTBEARER</h1>
+        <h3>Town of Grace &amp; City of Refuge</h3>
+        <p>Darkness has settled over the valley. Fear, sickness, doubt and grief chain the people.
+        You are called as a <b>Lightbearer</b> — to live among them, <b>discern their needs</b>,
+        <b>speak Scripture</b> to deliver &amp; settle them, <b>fight spiritual forces</b>, and <b>overcome temptation</b>.</p>
+        <ul>
+          <li>🚶 <b>Free living:</b> explore farm town + walled city, enter Church to pray &amp; heal</li>
+          <li>🕊️ <b>Deliver:</b> walk to glowing NPCs, press <b>E</b>, discern, choose the right Scripture</li>
+          <li>⚔️ <b>Fight:</b> shadows roam at night — strike with <b>Space / 1-6</b>. Right verse = double light!</li>
+          <li>🛡️ <b>Overcome:</b> when tempted, stand — choose righteousness + the Word</li>
+        </ul>
+        <div class="introGoal">🕯️ Quest: Deliver <b>5 souls</b> • Defeat <b>8 forces</b> • Overcome <b>3 temptations</b> → kindle the Great Lamp</div>
+        <button id="btnStart">➤ Enter the Town of Grace</button>
+        <div class="introSmall">WASD / Arrows + E • Mobile: joystick • All verses KJV • Progress auto-saves</div>
+      </div>
+    </div>
+
+    <!-- Win banner -->
+    <div id="winBanner" class="hidden"><div><h1>🕯️ THE GREAT LAMP IS LIT!</h1><p id="winText"></p><button id="btnContinue">Continue free living ✦</button></div></div>
+
+    <div id="toastWrap"></div>
+  </main>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

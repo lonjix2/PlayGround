@@ -1,0 +1,74 @@
+:root{
+  --gold:#e8b64c; --gold2:#f5d789; --ink:#1a1423; --parch:#fdf6e3; --parch2:#f3e6c3;
+  --night:#0f0d1d; --church:#fffdf5; --accent:#7c5cff; --good:#2ecc71; --bad:#e74c3c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#0d0b16;color:#f4ecd8;font-family:Georgia,'Times New Roman',serif;min-height:100%}
+#app{min-height:100vh;display:flex;flex-direction:column}
+#hud{display:flex;align-items:center;gap:12px;padding:8px 12px;background:linear-gradient(180deg,#221b33,#151020);border-bottom:2px solid var(--gold);flex-wrap:wrap;position:sticky;top:0;z-index:20}
+#logo{font-size:22px;color:var(--gold2)} #logo span{font-weight:bold;letter-spacing:1px} #logo small{display:block;font-size:11px;color:#cbb87a;letter-spacing:3px;text-transform:uppercase}
+.hud-stats{display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1}
+.stat{display:flex;align-items:center;gap:6px;background:#00000055;border:1px solid #ffffff22;border-radius:20px;padding:4px 10px;font-size:14px}
+.stat .bar{width:90px;height:10px;background:#000;border-radius:6px;overflow:hidden;border:1px solid #ffffff33}
+.stat .bar>div{height:100%;width:100%;background:linear-gradient(90deg,#ff6b6b,#ff9f43);transition:width .3s}
+.stat .bar.faith>div{background:linear-gradient(90deg,#7c5cff,#00d2ff)}
+.hud-right{display:flex;gap:8px}
+.hbtn{background:#2d2545;color:var(--gold2);border:1px solid var(--gold);border-radius:10px;padding:7px 12px;cursor:pointer;font-family:inherit;font-size:14px}
+.hbtn:hover{background:#3d335d}
+#stageWrap{position:relative;flex:1;display:flex;justify-content:center;align-items:flex-start;padding:10px;background:radial-gradient(1000px 500px at 50% -50px,#2a2247,#0d0b16)}
+#game{width:min(96vw,1020px);height:auto;aspect-ratio:960/600;background:#1c2b1c;border:3px solid var(--gold);border-radius:14px;box-shadow:0 20px 60px #000a;image-rendering:auto}
+#verseBar{position:absolute;left:50%;transform:translateX(-50%);bottom:52px;display:flex;gap:8px;z-index:8;flex-wrap:wrap;justify-content:center;max-width:96%}
+.vbtn{background:linear-gradient(180deg,#fff8e1,#f0d9a0);color:#3a2a12;border:2px solid #8a6d2b;border-radius:12px;padding:6px 10px;min-width:118px;cursor:pointer;text-align:left;font-family:inherit;box-shadow:0 4px 12px #0008}
+.vbtn b{display:block;font-size:13px} .vbtn small{font-size:11px;color:#6b551f}
+.vbtn .key{display:inline-block;background:#3a2a12;color:#ffe9a8;border-radius:6px;padding:0 6px;font-size:11px;margin-right:4px}
+.vbtn:hover{transform:translateY(-2px)} .vbtn.sel{outline:3px solid var(--accent)}
+.vbtn.cool{opacity:.45;pointer-events:none}
+#hint{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;font-size:12.5px;color:#e9d9a8;background:#000a;padding:4px 12px;border-radius:20px;border:1px solid #ffffff22;z-index:7;white-space:nowrap;max-width:96%;overflow:hidden;text-overflow:ellipsis}
+#dialog{position:absolute;left:50%;top:62px;transform:translateX(-50%);width:min(560px,92%);background:var(--parch);color:var(--ink);border-radius:14px;border:3px solid var(--gold);box-shadow:0 18px 50px #000c;z-index:15;overflow:hidden}
+#dlgHead{display:flex;gap:10px;align-items:center;background:linear-gradient(180deg,#f7e6b5,#e8c87a);padding:10px 12px}
+#dlgAvatar{font-size:34px;background:#fff;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;border:2px solid #8a6d2b}
+#dlgName{font-weight:bold;font-size:17px} #dlgNeed{font-size:12.5px;color:#7a5f1e;font-style:italic}
+#dlgClose,#bibleClose,#questClose{margin-left:auto;background:#3a2a12;color:#ffe9a8;border:none;border-radius:8px;padding:6px 10px;cursor:pointer}
+#dlgText{padding:12px 14px;font-size:15px;line-height:1.5;min-height:56px;font-style:italic}
+#dlgVerses{display:grid;grid-template-columns:1fr 1fr;padding:0 12px 8px;gap:8px}
+#dlgVerses button{background:#fffdf0;border:2px solid #b89b4a;border-radius:10px;padding:8px;cursor:pointer;text-align:left;font-family:inherit;font-size:13px}
+#dlgVerses button:hover{background:#fff2c2} #dlgVerses button b{color:#5a4310}
+#dlgActions{padding:0 12px 12px;display:flex;gap:8px;flex-wrap:wrap}
+#dlgActions button{background:#2d6a4f;color:#fff;border:none;border-radius:10px;padding:8px 12px;cursor:pointer;font-family:inherit}
+#temptModal{position:absolute;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:18}
+.temptCard{width:min(560px,92%);background:linear-gradient(180deg,#2b0f0f,#180a0a);border:3px solid var(--bad);border-radius:16px;padding:18px;color:#ffe2e2;box-shadow:0 0 60px #e74c3c55}
+.temptTag{background:var(--bad);display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;letter-spacing:1px;font-weight:bold}
+.temptCard h2{margin:10px 0 6px} .temptCard p{line-height:1.5}
+#temptChoices{display:grid;gap:8px;margin-top:12px}
+#temptChoices button{background:#fff8e1;color:#3a1515;border:2px solid var(--gold);border-radius:10px;padding:10px;cursor:pointer;text-align:left;font-family:inherit;font-size:14px}
+#temptChoices button:hover{background:#ffe9a8}
+#biblePanel,#questPanel{position:absolute;right:12px;top:62px;width:min(420px,92%);max-height:78%;overflow:auto;background:var(--parch);color:var(--ink);border:3px solid var(--gold);border-radius:14px;z-index:16;box-shadow:0 18px 50px #000c}
+.bibleHead{display:flex;align-items:center;padding:10px 12px;background:linear-gradient(180deg,#f7e6b5,#e8c87a);position:sticky;top:0}
+.bibleHead h2{font-size:16px;margin:0}
+#bibleList{padding:10px 12px;display:grid;gap:10px}
+.verseCard{background:#fffdf0;border:1px solid #c9ab5a;border-left:6px solid var(--accent);border-radius:10px;padding:8px 10px}
+.verseCard h4{margin:0 0 4px;color:#4a3510} .verseCard p{margin:0;font-size:13.5px;line-height:1.45;font-style:italic} .verseCard small{color:#7a5f1e}
+#questBody{padding:12px 14px;line-height:1.6;font-size:14.5px}
+#questBody li{margin-bottom:6px}
+.bibleFoot{padding:0 14px 14px;font-style:italic;color:#6b551f;font-size:13px}
+#intro{position:absolute;inset:0;background:radial-gradient(800px 500px at 50% 20%,#3a2d5e,#0d0b16f2);display:flex;align-items:center;justify-content:center;z-index:30;padding:12px}
+.introCard{width:min(640px,96%);background:linear-gradient(180deg,#fffdf0,#f3e2ae);color:#2a1e0d;border:4px solid var(--gold);border-radius:18px;padding:22px 22px 18px;text-align:center;box-shadow:0 30px 80px #000;max-height:92%;overflow:auto}
+.introCross{font-size:44px;color:#8a6d2b} .introCard h1{margin:0;letter-spacing:4px;color:#5a4310} .introCard h3{margin:4px 0 10px;color:#8a6d2b;font-weight:normal}
+.introCard p{line-height:1.55} .introCard ul{text-align:left;line-height:1.6;font-size:14.5px}
+.introGoal{background:#2d2545;color:#ffe9a8;border-radius:10px;padding:10px;margin:10px 0}
+#btnStart,#btnContinue{background:linear-gradient(180deg,#e8b64c,#b07e1f);border:none;border-radius:12px;padding:12px 22px;font-size:17px;cursor:pointer;font-family:inherit;font-weight:bold;color:#241a06}
+.introSmall{margin-top:8px;font-size:12px;color:#7a5f1e}
+#winBanner{position:absolute;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;z-index:25;text-align:center}
+#winBanner>div{background:linear-gradient(180deg,#fff8d0,#e8c87a);color:#3a2a12;border:4px solid #fff;border-radius:18px;padding:26px;max-width:520px}
+#toastWrap{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:grid;gap:8px;z-index:40}
+.toast{background:#151020ee;border:1px solid var(--gold);color:#ffe9a8;padding:8px 14px;border-radius:20px;font-size:14px;box-shadow:0 8px 20px #000a;animation:pop .3s}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+.hidden{display:none!important}
+#touchUI{display:none}
+@media (pointer:coarse){
+  #touchUI{display:flex;position:absolute;left:10px;right:10px;bottom:90px;justify-content:space-between;align-items:center;z-index:9;pointer-events:none}
+  #joystick{width:110px;height:110px;background:#ffffff22;border:2px solid #ffffff55;border-radius:50%;position:relative;pointer-events:auto}
+  #stick{width:48px;height:48px;background:#ffffffaa;border-radius:50%;position:absolute;left:31px;top:31px}
+  #touchBtns{display:flex;gap:8px;pointer-events:auto} #touchBtns button{width:56px;height:56px;border-radius:50%;border:2px solid var(--gold);background:#221b33ee;color:#ffe9a8;font-size:18px}
+  #hint{display:none} #verseBar{bottom:160px} .vbtn{min-width:96px;font-size:12px}
+}
