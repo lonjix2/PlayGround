@@ -1,0 +1,46 @@
+{
+  "name": "lightbearer-city-of-refuge",
+  "version": "1.0.0",
+  "description": "Lightbearer: City of Refuge — a Christian 3D free-roam game. Use Scriptures to deliver NPCs, fight shadows and overcome temptation.",
+  "type": "module",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 3000",
+    "electron": "electron .",
+    "dist": "electron-builder --win --linux --mac --x64",
+    "dist:win": "electron-builder --win --x64",
+    "dist:linux": "electron-builder --linux --x64"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.lightbearer.cityofrefuge",
+    "productName": "Lightbearer — City of Refuge",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Game"
+    },
+    "mac": {
+      "target": ["dmg", "zip"]
+    }
+  }
+}

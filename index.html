@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Lightbearer — City of Refuge | Christian 3D Game</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%E2%9C%9D%3C/text%3E%3C/svg%3E" />
+  <meta name="description" content="A Christian 3D free-roam game. Speak Scripture to deliver NPCs, defeat shadows and overcome temptation." />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div id="stats">
+        <div class="stat-row">
+          <span class="stat-ico">✝</span>
+          <div class="bar"><div id="bar-faith" class="fill faith"></div></div>
+          <span id="txt-faith" class="stat-num">100</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-ico">🕊</span>
+          <div class="bar"><div id="bar-peace" class="fill peace"></div></div>
+          <span id="txt-peace" class="stat-num">100</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-ico">✨</span>
+          <div class="bar"><div id="bar-light" class="fill light"></div></div>
+          <span id="txt-light" class="stat-num">100</span>
+        </div>
+        <div id="level-line"><span id="txt-level">Lv 1 Witness</span> · <span id="txt-xp">0 XP</span> · <span id="txt-souls">0 delivered</span></div>
+      </div>
+
+      <div id="quest-tracker">
+        <div id="quest-title">📜 Quest</div>
+        <div id="quest-text">…</div>
+      </div>
+
+      <canvas id="minimap" width="150" height="150"></canvas>
+
+      <div id="hotbar"></div>
+
+      <div id="prompt" class="hidden"></div>
+      <div id="toast-wrap"></div>
+      <div id="verse-flash" class="hidden"><div id="verse-flash-ref"></div><div id="verse-flash-text"></div></div>
+
+      <div id="controls-hint">
+        <b>WASD</b> move · <b>Mouse</b> look · <b>1–4</b>/<b>J</b> speak Word · <b>E</b> talk · <b>Q</b> pray · <b>B</b> Bible · <b>Shift</b> run · <b>Space</b> jump
+      </div>
+
+      <div id="touch-ui">
+        <div id="stick"><div id="stick-knob"></div></div>
+        <div id="touch-btns">
+          <button data-act="speak">✝</button>
+          <button data-act="talk">💬</button>
+          <button data-act="pray">🙏</button>
+          <button data-act="bible">📖</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title screen -->
+    <div id="title">
+      <div class="title-card">
+        <div class="title-cross">✝</div>
+        <h1>LIGHTBEARER</h1>
+        <h2>City of Refuge</h2>
+        <p class="tagline">“Thy word is a lamp unto my feet, and a light unto my path.” — Psalm 119:105</p>
+        <div class="features">
+          <span>🏘️ Free-roam town</span><span>📖 Scripture combat</span><span>🙏 Deliver NPCs</span><span>🌑 Fight shadows</span><span>🛡️ Resist temptation</span>
+        </div>
+        <button id="btn-start">▶ &nbsp;Enter the City</button>
+        <button id="btn-how" class="ghost">How to play</button>
+        <div id="how" class="hidden">
+          <p><b>Move</b> with WASD / left stick. <b>Look</b> with mouse (click canvas to lock).</p>
+          <p><b>1–4 or J / ✝</b> — Speak the equipped Scripture. Each scroll burns <b>Light ✨</b>. Matching a shadow's weakness deals double damage.</p>
+          <p><b>E / 💬</b> — Talk to townsfolk. Choose the <b>right Scripture</b> for their affliction to deliver them.</p>
+          <p><b>Q / 🙏</b> (hold) — Pray to restore Light and heal. Stand in the church glow for faster renewal.</p>
+          <p><b>B / 📖</b> — Open your Bible: equip scrolls &amp; re-read verses.</p>
+          <p>Resist <b>temptation whispers</b> by answering with the true Word before time runs out. Falling costs Peace 🕊; losing all Faith ✝ means you rest at the church.</p>
+          <p>Deliver souls, cleanse shadows, ring the church bell 🔔 to finish your witness.</p>
+        </div>
+        <div class="desktop-note">🖥️ Desktop build: <code>npm run dist</code> (Electron — Windows / Linux / macOS) · also playable in browser</div>
+      </div>
+    </div>
+
+    <!-- Dialogue modal -->
+    <div id="modal" class="hidden">
+      <div class="panel">
+        <div id="modal-name"></div>
+        <div id="modal-text"></div>
+        <div id="modal-choices"></div>
+        <button id="modal-close" class="ghost">Leave (Esc)</button>
+      </div>
+    </div>
+
+    <!-- Bible panel -->
+    <div id="bible" class="hidden">
+      <div class="panel wide">
+        <h3>📖 Your Scrolls <span id="bible-count"></span></h3>
+        <p class="muted">Equip up to 4 scrolls to your hotbar (click a scroll, then click a slot — or press 1–4 while selected). Matching categories matters: <b>Deliverance ✝</b> breaks Fear · <b>Peace 🕊</b> calms Anger · <b>Strength 💪</b> lifts Despair · <b>Faith 🔥</b> answers Doubt.</p>
+        <div id="bible-slots"></div>
+        <div id="bible-list"></div>
+        <button id="bible-close">Close (B)</button>
+      </div>
+    </div>
+
+    <div id="gameover" class="hidden">
+      <div class="panel">
+        <h2>🕊️ You rest at the church…</h2>
+        <p>“He restoreth my soul.” — Psalm 23:3. Your Faith is renewed. Rise and shine again, lightbearer.</p>
+        <button id="btn-revive">Rise again (Respawn)</button>
+      </div>
+    </div>
+
+    <div id="victory" class="hidden">
+      <div class="panel">
+        <h2>🔔 The bell rings over the city!</h2>
+        <p id="victory-text"></p>
+        <button id="btn-continue">Keep ministering (free roam)</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
