@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scripture City — Faith in the Shared City</title>
+<meta name="description" content="Scripture City: a multiplayer Christian 3D browser game. Study the Word, serve the city, stand firm." />
+<style>
+  :root { --bg:#0b1020; --panel:#141c33; --gold:#e8c468; --ink:#f2ecdc; --muted:#9aa5c4; --accent:#5aa9ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:#0e1430; border-bottom:1px solid #26315a; position:sticky; top:0; z-index:5; }
+  header .brand { font-weight:800; letter-spacing:.4px; }
+  header .brand span { color:var(--gold); }
+  nav a { color:var(--muted); margin-left:14px; text-decoration:none; font-size:14px; }
+  .hero { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; padding:22px 20px; max-width:1100px; margin:0 auto; }
+  @media (max-width:820px){ .hero{ grid-template-columns:1fr; } }
+  .card { background:var(--panel); border:1px solid #26315a; border-radius:14px; padding:18px; }
+  h1 { font-size:clamp(26px,4vw,42px); margin:.2em 0; line-height:1.05; }
+  h1 em { color:var(--gold); font-style:normal; }
+  p.lead { color:#cdd6f2; line-height:1.55; }
+  .pillars { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+  @media (max-width:820px){ .pillars{ grid-template-columns:repeat(2,1fr); } }
+  .pillar { background:#0f1730; border:1px solid #26315a; border-radius:10px; padding:10px; font-size:13px; color:#cdd6f2; }
+  .pillar b { display:block; color:var(--gold); margin-bottom:4px; font-size:13px; }
+  #city-wrap { position:relative; border-radius:14px; overflow:hidden; border:1px solid #26315a; background:#070b1a; min-height:320px; }
+  #city-canvas { display:block; width:100%; height:380px; }
+  #city-hud { position:absolute; left:10px; top:10px; display:flex; gap:8px; }
+  .hud-chip { background:rgba(10,14,32,.82); border:1px solid #33406e; border-radius:999px; padding:6px 10px; font-size:12px; }
+  .verse { border-left:3px solid var(--gold); padding:8px 12px; margin:12px 0; background:#0f1730; border-radius:0 10px 10px 0; }
+  .verse small { color:var(--muted); }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  button { background:var(--gold); border:0; border-radius:10px; padding:11px 16px; font-weight:700; cursor:pointer; color:#241c05; }
+  button.ghost { background:transparent; color:var(--ink); border:1px solid #3a4780; }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:1100px; margin:0 auto; padding:0 20px 26px; }
+  @media (max-width:820px){ .grid3{ grid-template-columns:1fr; } }
+  .encounter { font-size:14px; line-height:1.5; }
+  .encounter .tag { display:inline-block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; color:#0b1020; background:var(--accent); border-radius:999px; padding:3px 9px; font-weight:800; }
+  footer { text-align:center; color:var(--muted); font-size:12px; padding:18px; }
+  #app-status { font-size:12px; color:#8fe3a5; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">SCRIPTURE <span>CITY</span></div>
+  <nav><a href="#city">City</a><a href="#study">Study</a><a href="#serve">Serve</a></nav>
+</header>
+
+<main id="app" data-ready="true">
+  <section class="hero">
+    <div class="card">
+      <div id="app-status">● live preview build — Phase 0 planning + playable placeholder</div>
+      <h1>Live out your faith in a <em>shared city.</em></h1>
+      <p class="lead">Explore the city, face spiritual battles, and overcome them with the Word — <i>“It is written.”</i> Serve neighbours, mediate conflict, and grow through service, not grinding.</p>
+      <div class="verse"><b>“Put on the whole armour of God, that ye may be able to stand against the wiles of the devil.”</b><br /><small>Ephesians 6:11 (KJV — public domain)</small></div>
+      <div class="row">
+        <button id="enter-btn" type="button">Enter the City</button>
+        <button class="ghost" type="button" onclick="document.getElementById('study').scrollIntoView({behavior:'smooth'})">Study the Word</button>
+      </div>
+      <div class="pillars">
+        <div class="pillar"><b>Scripture is the weapon</b>Every victory comes from the Word.</div>
+        <div class="pillar"><b>Service is greatness</b>Rank is earned by serving people.</div>
+        <div class="pillar"><b>Community</b>Learn, pray, and minister together.</div>
+        <div class="pillar"><b>Reverence</b>Faith treated with respect.</div>
+      </div>
+    </div>
+    <div id="city-wrap" class="card" style="padding:8px">
+      <canvas id="city-canvas" width="640" height="380" aria-label="Animated Scripture City skyline"></canvas>
+      <div id="city-hud"><span class="hud-chip">🕊 Fellowship Square</span><span class="hud-chip" id="fps-chip">60 fps target</span></div>
+    </div>
+  </section>
+
+  <section class="grid3" id="study">
+    <div class="card encounter"><span class="tag">Encounter · Fear</span><h3>Night of anxiety</h3><p>A neighbour cannot sleep for worry. Which word do you bring?</p><p><b>“Fear thou not; for I am with thee.”</b> — Isaiah 41:10 (KJV)</p></div>
+    <div class="card encounter" id="serve"><span class="tag">Ministry · Mediation</span><h3>Quarrel at the market</h3><p>Two vendors argue over a stall. Step in with wisdom and Scripture.</p><p><b>“Blessed are the peacemakers.”</b> — Matthew 5:9 (KJV)</p></div>
+    <div class="card encounter"><span class="tag">Soul-winning · Open</span><h3>A curious traveller</h3><p>Someone asks what you believe. Share the gospel with patience.</p><p><b>“For God so loved the world…”</b> — John 3:16 (KJV)</p></div>
+  </section>
+</main>
+
+<footer>Scripture City (working title) · KJV text is public domain · Full Three.js + multiplayer roadmap in planning.</footer>
+
+<script>
+(function(){
+  var canvas = document.getElementById('city-canvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height, t = 0;
+  var people = [];
+  for (var i=0;i<26;i++) people.push({x:Math.random()*W, y:H*0.72+Math.random()*H*0.22, s:0.4+Math.random()*0.9, v:0.3+Math.random()*0.9});
+  function building(x,w,h,c,win){ ctx.fillStyle=c; ctx.fillRect(x,H*0.72-h,w,h);
+    ctx.fillStyle='rgba(232,196,104,.85)';
+    for(var wy=H*0.72-h+10; wy<H*0.68; wy+=16) for(var wx=x+6; wx<x+w-8; wx+=14){ if((wx+wy+t)%7<3) ctx.fillRect(wx,wy,5,7); } }
+  function frame(){
+    t+=1;
+    var g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#1b2450'); g.addColorStop(.55,'#3b3f7d'); g.addColorStop(.72,'#c98a4b'); g.addColorStop(.75,'#101736'); g.addColorStop(1,'#0a0f26');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#f5e6bd'; ctx.beginPath(); ctx.arc(W*0.78, H*0.42, 22, 0, 7); ctx.fill();
+    ctx.fillStyle='rgba(11,16,32,.9)';
+    building(20,64,150,'#232c55'); building(96,52,110,'#2c3768'); building(160,78,180,'#1d2547');
+    building(250,58,130,'#2b3566'); building(320,86,200,'#202a52'); building(418,60,140,'#2c3768'); building(490,80,170,'#232c55'); building(580,46,110,'#2b3566');
+    ctx.fillStyle='#0d1330'; ctx.fillRect(0,H*0.72,W,H*0.28);
+    ctx.strokeStyle='rgba(232,196,104,.5)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,H*0.83); ctx.lineTo(W,H*0.83); ctx.stroke();
+    ctx.fillStyle='#e8c468';
+    for(var i=0;i<people.length;i++){ var p=people[i]; p.x+=p.v; if(p.x>W+10) p.x=-10;
+      var bob=Math.sin((t/12)+i)*2; ctx.beginPath(); ctx.arc(p.x,p.y+bob,3.2*p.s,0,7); ctx.fill(); ctx.fillRect(p.x-1.4,p.y+bob+3,2.8,7*p.s); }
+    ctx.fillStyle='rgba(242,236,220,.92)'; ctx.font='600 13px system-ui,sans-serif';
+    ctx.fillText('Fellowship Square · ' + new Date().toLocaleTimeString(), 12, 20);
+    requestAnimationFrame(frame);
+  }
+  frame();
+  document.getElementById('enter-btn').addEventListener('click', function(){
+    document.getElementById('city').scrollIntoView; document.getElementById('city-wrap').scrollIntoView({behavior:'smooth', block:'center'});
+  });
+  var chip=document.getElementById('fps-chip'); var n=0,last=performance.now();
+  (function fps(now){ n++; if(now-last>1000){ chip.textContent=Math.min(99,n)+' fps · adaptive'; n=0; last=now; } requestAnimationFrame(fps); })(performance.now());
+})();
+</script>
+</body>
+</html>
