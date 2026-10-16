@@ -22,6 +22,16 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #070b16; fon
 .fill.light { background: linear-gradient(90deg, #fff6c8, #f5c542); }
 .stat-num { font-size: 12px; min-width: 28px; text-align: right; }
 #level-line { font-size: 12px; opacity: .9; margin-top: 6px; }
+#score-line { font-size: 14px; margin-top: 6px; color: #ffe27a; font-weight: bold; }
+#score-line .streak { color: #ff9d5c; font-size: 12px; margin-left: 6px; }
+#score-hint { font-size: 11px; opacity: .65; margin-top: 2px; }
+.score-card { background: #1a2342; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 10px 0; line-height: 1.6; }
+#score-pop-wrap { position: absolute; top: 34%; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; }
+.score-pop { font-size: 26px; font-weight: bold; color: #ffe27a; text-shadow: 0 2px 12px #000, 0 0 24px rgba(245,197,66,.8); animation: scorepop 1.6s ease-out forwards; }
+.score-pop.miss { color: #ff8d8d; font-size: 20px; }
+.score-pop.streak-bonus { color: #ffb35c; }
+@keyframes scorepop { 0% { opacity: 0; transform: translateY(10px) scale(.8);} 15% {opacity: 1; transform: none;} 75% {opacity: 1;} 100% {opacity: 0; transform: translateY(-28px);} }
+#verse-points { font-size: 20px; color: #ffe27a; font-weight: bold; margin-top: 4px; }
 
 #quest-tracker { position: absolute; top: 12px; right: 174px; max-width: 320px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: 13px; }
 #quest-title { color: var(--gold); font-weight: bold; }

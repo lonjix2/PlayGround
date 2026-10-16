@@ -24,6 +24,9 @@ const S = {
   light: 100, maxLight: 100,
   xp: 0, level: 1,
   souls: 0, cleansed: 0, resisted: 0,
+  points: 0, streak: 0, bestStreak: 0,
+  ptsDeliver: 0, ptsCombat: 0, ptsResist: 0, ptsBless: 0, ptsScroll: 0,
+  correctCount: 0, wrongCount: 0,
   unlocked: new Set(['psalm23-4', 'john14-27', 'phil4-13', 'heb11-1']),
   hotbar: ['psalm23-4', 'john14-27', 'phil4-13', 'heb11-1'],
   activeSlot: 0,
@@ -328,10 +331,12 @@ function toast(msg) {
   while (w.children.length > 4) w.firstChild.remove();
   setTimeout(() => d.remove(), 3100);
 }
-function flashVerse(v) {
+function flashVerse(v, pointsText = '') {
   const f = $('verse-flash');
   $('verse-flash-ref').textContent = `${CATEGORIES[v.cat].icon} ${v.ref}`;
   $('verse-flash-text').textContent = `“${v.text}”`;
+  const vp = $('verse-points');
+  if (vp) vp.textContent = pointsText;
   f.classList.remove('hidden');
   clearTimeout(flashVerse._t);
   flashVerse._t = setTimeout(() => f.classList.add('hidden'), 1600);
@@ -346,7 +351,62 @@ function updateHUD() {
   $('txt-level').textContent = `Lv ${S.level} ${RANKS[Math.min(S.level - 1, RANKS.length - 1)]}`;
   $('txt-xp').textContent = `${S.xp} XP`;
   $('txt-souls').textContent = `${S.souls} delivered · ${S.cleansed} cleansed`;
+  const tp = $('txt-points');
+  if (tp) tp.textContent = S.points;
+  const ts = $('txt-streak');
+  if (ts) ts.textContent = S.streak >= 2 ? `🔥 x${S.streak} streak!` : '';
   updateQuest();
+}
+
+// ---------- Grace Points scoring ----------
+// Right Scripture, right need = points. Consecutive correct answers build a streak bonus.
+function showScorePop(text, cls = '') {
+  const wrap = $('score-pop-wrap');
+  if (!wrap) return;
+  const d = document.createElement('div');
+  d.className = 'score-pop' + (cls ? ' ' + cls : '');
+  d.textContent = text;
+  wrap.appendChild(d);
+  while (wrap.children.length > 3) wrap.firstChild.remove();
+  setTimeout(() => d.remove(), 1700);
+}
+function streakBonus() {
+  return Math.min(S.streak * 5, 50);
+}
+function addPoints(base, label, bucket = null) {
+  const bonus = streakBonus();
+  const total = base + bonus;
+  S.points += total;
+  if (bucket === 'deliver') S.ptsDeliver += total;
+  else if (bucket === 'combat') S.ptsCombat += total;
+  else if (bucket === 'resist') S.ptsResist += total;
+  else if (bucket === 'bless') S.ptsBless += total;
+  else if (bucket === 'scroll') S.ptsScroll += total;
+  S.correctCount++;
+  S.streak++;
+  S.bestStreak = Math.max(S.bestStreak, S.streak);
+  showScorePop(`+${total} ${label}${bonus > 0 ? ` (incl. +${bonus} streak)` : ''}`);
+  try {
+    const best = Number(localStorage.getItem('lightbearer_best') || 0);
+    if (S.points > best) localStorage.setItem('lightbearer_best', String(S.points));
+  } catch {}
+  updateHUD();
+  return total;
+}
+function noPointsMiss(label) {
+  S.wrongCount++;
+  if (S.streak >= 2) showScorePop(`Streak lost — ${label}`, 'miss');
+  else showScorePop(label, 'miss');
+  S.streak = 0;
+  updateHUD();
+}
+function scoreSummaryHTML() {
+  let best = 0;
+  try { best = Number(localStorage.getItem('lightbearer_best') || 0); } catch {}
+  return `⭐ <b>${S.points} Grace Points</b> (best this device: ${Math.max(best, S.points)})<br>` +
+    `🙏 Deliverance: <b>${S.ptsDeliver}</b> · 🌑 Combat: <b>${S.ptsCombat}</b> · 🛡️ Resisted: <b>${S.ptsResist}</b><br>` +
+    `✨ Blessings: <b>${S.ptsBless}</b> · 📜 Scrolls: <b>${S.ptsScroll}</b><br>` +
+    `✅ ${S.correctCount} right Scriptures · 🔥 best streak x${S.bestStreak} · souls ${S.souls} · cleansed ${S.cleansed} · resisted ${S.resisted}`;
 }
 function updateQuest() {
   const stages = [
@@ -458,7 +518,7 @@ function talkTo(npc) {
         name: `Pastor Silas — shepherd of Refuge`,
         text: `“Welcome, lightbearer! Our town groans — <b>fear, anger, despair and doubt</b> chain precious souls, and shadows prowl the streets.<br><br>Take up the <b>Sword of the Spirit, which is the word of God</b> (Eph 6:17). Discern each soul's affliction, speak the fitting Scripture, and set them free. The church glow renews your Light. Go — I will pray for you!”`,
         choices: [{ ref: 'Amen — I receive the call', text: 'Deliver 3 souls to begin. The Lord is with you.', catName: '✝', cat: 'word', id: 'amen' }],
-        onPick: () => { S.quest = 1; gainXP(10); toast('📜 Quest: deliver 3 townsfolk (E near chained souls)'); updateHUD(); }
+        onPick: () => { S.quest = 1; gainXP(10); addPoints(10, 'for answering the call', 'bless'); toast('📜 Quest: deliver 3 townsfolk (E near chained souls)'); updateHUD(); }
       });
     } else {
       const left = Math.max(0, 3 - S.souls);
@@ -468,7 +528,7 @@ function talkTo(npc) {
           ? `“Well done so far — <b>${S.souls} delivered</b>. ${left} more soul(s) wait in chains. Remember: <b>Fear→Deliverance ✝ · Anger→Peace 🕊 · Despair→Strength 💪 · Doubt→Faith 🔥 · Wounds→Healing 💧</b>.”`
           : `“The captives go free! Now cleanse the shadows with the spoken Word, and stand firm when temptation whispers.”`,
         choices: [{ ref: '“Pray for me, pastor.”', text: '“I can do all things through Christ which strengtheneth me.” — Phil 4:13', catName: '🙏', cat: 'word', id: 'bless' }],
-        onPick: () => { S.light = S.maxLight; S.peace = Math.min(S.maxPeace, S.peace + 20); toast('🙏 Pastor prays — Light & Peace renewed!'); audio.pray(); updateHUD(); }
+        onPick: () => { S.light = S.maxLight; S.peace = Math.min(S.maxPeace, S.peace + 20); addPoints(10, 'pastoral blessing', 'bless'); toast('🙏 Pastor prays — Light & Peace renewed!'); audio.pray(); updateHUD(); }
       });
     }
     return;
@@ -478,7 +538,7 @@ function talkTo(npc) {
       name: `${npc.name} — delivered ✨`,
       text: `“Thank you! I feel light as morning. <b>“He hath sent me… to proclaim liberty to the captives”</b> (Luke 4:18). I will tell others what the Lord has done!”`,
       choices: [{ ref: '“Go in peace.” (Luke 8:48)', text: 'Your faith hath made you whole.', catName: '🕊', cat: 'peace', id: 'go' }],
-      onPick: () => { S.peace = Math.min(S.maxPeace, S.peace + 8); gainXP(4); updateHUD(); }
+      onPick: () => { S.peace = Math.min(S.maxPeace, S.peace + 8); gainXP(4); addPoints(10, `for blessing ${npc.name}`, 'bless'); updateHUD(); }
     });
     return;
   }
@@ -495,7 +555,8 @@ function talkTo(npc) {
       else {
         audio.fail();
         S.peace = Math.max(0, S.peace - 6);
-        toast(`😞 That Word was true, but not the key for ${aff.name}. Hint: they need ${CATEGORIES[aff.needCat].icon} ${CATEGORIES[aff.needCat].name}.`);
+        noPointsMiss('wrong Scripture — no points');
+        toast(`😞 That Word was true, but not the key for ${aff.name}. Hint: they need ${CATEGORIES[aff.needCat].icon} ${CATEGORIES[aff.needCat].name}. Right Scripture = points!`);
         burst(npc.group.position.clone().add(new THREE.Vector3(0, 1.5, 0)), 0x553355, 8);
         updateHUD();
       }
@@ -508,12 +569,14 @@ function deliverNPC(npc, verse) {
   npc.mark.material = new THREE.MeshStandardMaterial({ color: 0xffe27a, emissive: 0xcc9922, emissiveIntensity: 1.6 });
   npc.mark.geometry = new THREE.TorusGeometry(0.55, 0.05, 8, 18);
   audio.deliver();
-  flashVerse(verseById(verse.id) || verse);
+  const base = 100 + Math.round((verse.power || 20) / 2);
+  const earned = addPoints(base, `for delivering ${npc.name} with ${verse.ref}`, 'deliver');
+  flashVerse(verseById(verse.id) || verse, `⭐ +${earned} Grace Points — right Scripture!`);
   burst(npc.group.position.clone().add(new THREE.Vector3(0, 1.5, 0)), 0xffe27a, 26);
   S.souls++;
   gainXP(25);
   S.peace = Math.min(S.maxPeace, S.peace + 12);
-  toast(`✨ ${npc.name} is delivered by ${verse.ref}! “${verse.text.slice(0, 60)}…”`);
+  toast(`✨ ${npc.name} is delivered by ${verse.ref}! +${earned} points! “${verse.text.slice(0, 60)}…”`);
   // unlock a new scroll sometimes
   const locked = VERSES.filter(v => !S.unlocked.has(v.id));
   if (locked.length && S.souls % 2 === 1) {
@@ -541,20 +604,23 @@ function triggerTemptation() {
       if (c && (c.cat === t.answerCat || (t.answerCat === 'word' && ['word', 'faith'].includes(c.cat)))) {
         S.resisted++;
         gainXP(20);
+        const earned = addPoints(100, `for resisting with ${c.ref}`, 'resist');
         S.peace = Math.min(S.maxPeace, S.peace + 10);
         audio.deliver();
-        flashVerse(verseById(c.id));
+        flashVerse(verseById(c.id), `⭐ +${earned} — temptation overcome!`);
         burst(player.position.clone().add(new THREE.Vector3(0, 2, 0)), 0xfff2b0, 20);
-        toast(`🛡️ Resisted by ${c.ref}! “Resist the devil, and he will flee.” (James 4:7)`);
+        toast(`🛡️ Resisted by ${c.ref}! +${earned} points! “Resist the devil, and he will flee.” (James 4:7)`);
         advanceQuest();
       } else if (!c) {
         S.peace = Math.max(0, S.peace - 18);
         S.faith = Math.max(0, S.faith - 8);
         audio.fail();
+        noPointsMiss('hesitated — no points');
         toast('💔 You hesitated… temptation left a wound. Pray and return to the Word!');
       } else {
         S.peace = Math.max(0, S.peace - 12);
         audio.fail();
+        noPointsMiss('wrong Scripture — no points');
         toast(`😖 “${c.ref}” is precious, but the true shield here is ${CATEGORIES[t.answerCat].icon} ${CATEGORIES[t.answerCat].name}. Peace shaken.`);
       }
       updateHUD();
@@ -583,12 +649,21 @@ function ringBell() {
   if (!S.victory) {
     S.victory = true;
     gainXP(100);
+    S.points += 200; S.ptsBless += 200; S.correctCount++;
+    S.bestStreak = Math.max(S.bestStreak, S.streak);
+    showScorePop('+200 City set free! 🔔');
     $('victory').classList.remove('hidden');
     S.modalOpen = true;
     $('victory-text').textContent = `You delivered ${S.souls} souls, cleansed ${S.cleansed} shadows and resisted ${S.resisted} temptations. “And ye shall know the truth, and the truth shall make you free.” — John 8:32. The city glows with dawn.`;
+    const vs = $('victory-score');
+    if (vs) vs.innerHTML = scoreSummaryHTML();
     if (document.pointerLockElement) document.exitPointerLock();
+    updateHUD();
   } else {
-    toast('🔔 Freedom rings over Refuge! Alleluia!');
+    S.points += 20; S.ptsBless += 20;
+    showScorePop('+20 Alleluia! 🔔');
+    toast('🔔 Freedom rings over Refuge! Alleluia! +20 points!');
+    updateHUD();
   }
 }
 $('btn-continue').onclick = () => { $('victory').classList.add('hidden'); S.modalOpen = false; audio.click(); };
@@ -667,10 +742,12 @@ $('btn-revive').onclick = () => {
 function die() {
   if (S.dead) return;
   S.dead = true;
+  S.streak = 0;
   audio.fail();
   $('gameover').classList.remove('hidden');
   S.modalOpen = true;
   if (document.pointerLockElement) document.exitPointerLock();
+  updateHUD();
 }
 
 // ============================================================ minimap
@@ -837,11 +914,13 @@ function animate() {
       if (locked.length) {
         const nv = locked[Math.floor(Math.random() * locked.length)];
         S.unlocked.add(nv.id);
-        toast(`📜 Scroll found: ${nv.ref} — ${CATEGORIES[nv.cat].name}! (B to equip)`);
-        flashVerse(nv);
+        const earned = addPoints(15, `scroll: ${nv.ref}`, 'scroll');
+        toast(`📜 Scroll found: ${nv.ref} — ${CATEGORIES[nv.cat].name}! +${earned} points! (B to equip)`);
+        flashVerse(nv, `⭐ +${earned} — new Scripture learned!`);
       } else {
         S.light = S.maxLight; S.peace = Math.min(S.maxPeace, S.peace + 10);
-        toast('📜 Ancient scroll — Light & Peace renewed!');
+        const earned = addPoints(15, 'ancient scroll', 'scroll');
+        toast(`📜 Ancient scroll — Light & Peace renewed! +${earned} points!`);
       }
       gainXP(8);
     }
@@ -949,7 +1028,18 @@ function animate() {
         e.hitT = 0.15;
         audio.hit();
         burst(e.group.position.clone().add(new THREE.Vector3(0, 1.6, 0)), CATEGORIES[s.verse.cat].color, perfect ? 18 : 10);
-        if (perfect) toast(`✝ Perfect Word! ${s.verse.ref} shatters ${e.def.name}!`);
+        if (perfect) {
+          const earned = addPoints(25, `Perfect Word! ${s.verse.ref}`, 'combat');
+          toast(`✝ Perfect Word! ${s.verse.ref} shatters ${e.def.name}! +${earned} points!`);
+        } else if (matched) {
+          S.points += 10; S.ptsCombat += 10; S.correctCount++;
+          showScorePop(`+10 Good Word ${s.verse.ref}`);
+          updateHUD();
+        } else {
+          S.points += 2; S.ptsCombat += 2;
+          showScorePop(`+2 ${s.verse.ref} hits`);
+          updateHUD();
+        }
         if (e.hp <= 0) {
           audio.enemyDie();
           burst(e.group.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 0xffe27a, 26, 8);
@@ -957,8 +1047,9 @@ function animate() {
           enemies.splice(j, 1);
           S.cleansed++;
           gainXP(18);
+          const earned = addPoints(80, `cleansed ${e.def.name}`, 'combat');
           S.light = Math.min(S.maxLight, S.light + 6);
-          toast(`🌅 ${e.def.name} is cleansed! (${S.cleansed} total)`);
+          toast(`🌅 ${e.def.name} is cleansed! +${earned} points! (${S.cleansed} total)`);
           advanceQuest();
           updateHUD();
         }

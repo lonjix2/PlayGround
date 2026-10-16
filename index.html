@@ -31,6 +31,8 @@
           <span id="txt-light" class="stat-num">100</span>
         </div>
         <div id="level-line"><span id="txt-level">Lv 1 Witness</span> · <span id="txt-xp">0 XP</span> · <span id="txt-souls">0 delivered</span></div>
+        <div id="score-line">⭐ <span id="txt-points">0</span> Grace Points <span id="txt-streak" class="streak"></span></div>
+        <div id="score-hint">Right Scripture = big points + streak bonus 🔥</div>
       </div>
 
       <div id="quest-tracker">
@@ -44,7 +46,8 @@
 
       <div id="prompt" class="hidden"></div>
       <div id="toast-wrap"></div>
-      <div id="verse-flash" class="hidden"><div id="verse-flash-ref"></div><div id="verse-flash-text"></div></div>
+      <div id="score-pop-wrap"></div>
+      <div id="verse-flash" class="hidden"><div id="verse-flash-ref"></div><div id="verse-flash-text"></div><div id="verse-points"></div></div>
 
       <div id="controls-hint">
         <b>WASD</b> move · <b>Mouse</b> look · <b>1–4</b>/<b>J</b> speak Word · <b>E</b> talk · <b>Q</b> pray · <b>B</b> Bible · <b>Shift</b> run · <b>Space</b> jump
@@ -81,6 +84,7 @@
           <p><b>B / 📖</b> — Open your Bible: equip scrolls &amp; re-read verses.</p>
           <p>Resist <b>temptation whispers</b> by answering with the true Word before time runs out. Falling costs Peace 🕊; losing all Faith ✝ means you rest at the church.</p>
           <p>Deliver souls, cleanse shadows, ring the church bell 🔔 to finish your witness.</p>
+          <p><b>⭐ Grace Points:</b> right Scripture for the right need earns big points — <b>Deliverance +120</b> · <b>Perfect hit +25</b> · <b>Cleanse +80</b> · <b>Resist temptation +100</b> · <b>Blessing +10</b> · <b>Scroll +15</b>. Consecutive correct answers build a 🔥 <b>streak bonus (+5 per streak, up to +50)</b>. Wrong answers break the streak (no points lost — grace!).</p>
         </div>
         <div class="desktop-note">🖥️ Desktop build: <code>npm run dist</code> (Electron — Windows / Linux / macOS) · also playable in browser</div>
       </div>
@@ -119,6 +123,7 @@
       <div class="panel">
         <h2>🔔 The bell rings over the city!</h2>
         <p id="victory-text"></p>
+        <div id="victory-score" class="score-card"></div>
         <button id="btn-continue">Keep ministering (free roam)</button>
       </div>
     </div>
