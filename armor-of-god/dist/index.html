@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ARMOR OF GOD — Phase 1: Town Vertical Slice</title>
+  <script type="module" crossorigin src="./assets/index-CpFknxld.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-C-EIItGi.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="game-canvas"></canvas>
+    <!-- HUD -->
+    <div id="hud">
+      <div id="faith-wrap">
+        <div id="faith-label">FAITH <span id="faith-num">100</span></div>
+        <div id="faith-bar"><div id="faith-fill"></div></div>
+        <div id="translation-toggle">
+          <button id="btn-kjv" class="active">KJV</button>
+          <button id="btn-web">WEB</button>
+        </div>
+      </div>
+      <div id="armor-mini"></div>
+      <div id="quest-log"></div>
+      <canvas id="minimap" width="160" height="160"></canvas>
+      <div id="hint">WASD move · Mouse drag orbit · E interact · Q discern · Tab verse wheel · P pray · J journal</div>
+      <div id="interact-prompt" class="hidden"></div>
+    </div>
+    <!-- Verse wheel -->
+    <div id="verse-wheel" class="hidden">
+      <div id="wheel-title">WORD ARSENAL — <span>in the name of Jesus</span></div>
+      <div id="wheel-cards"></div>
+      <div id="wheel-close-hint">Click a verse to speak it · Esc closes</div>
+    </div>
+    <!-- Dialogue -->
+    <div id="dialog" class="hidden">
+      <div id="dlg-name"></div>
+      <div id="dlg-burden"></div>
+      <div id="dlg-text"></div>
+      <div id="dlg-actions"></div>
+    </div>
+    <!-- Verse speak banner -->
+    <div id="verse-banner" class="hidden">
+      <div id="vb-ref"></div>
+      <div id="vb-text"></div>
+      <div id="vb-result"></div>
+    </div>
+    <!-- Temptation -->
+    <div id="temptation" class="hidden">
+      <div id="temp-whisper">👁 a whisper slithers in…</div>
+      <h2 id="temp-title"></h2>
+      <p id="temp-desc"></p>
+      <div id="temp-timer"><div id="temp-timer-fill"></div></div>
+      <div id="temp-choices"></div>
+      <div id="temp-counter" class="hidden">
+        <p>Counter it — <b>"It is written…"</b> choose the Scripture:</p>
+        <div id="temp-verses"></div>
+      </div>
+    </div>
+    <!-- Journal -->
+    <div id="journal" class="hidden">
+      <h2>Journal — Memorized Verses <button id="journal-close">Close</button></h2>
+      <div id="journal-list"></div>
+      <h3>Armor of God (Eph 6:10-18)</h3>
+      <div id="armor-panel"></div>
+    </div>
+    <!-- Toast + title -->
+    <div id="toast" class="hidden"></div>
+    <div id="title-screen">
+      <h1>ARMOR OF GOD</h1>
+      <p class="subtitle">"Put on the whole armour of God… and having done all, to stand." — Eph 6:11,13 (KJV)</p>
+      <p class="controls-help">No guns. No magic. Only Scripture, faith, prayer, and obedience.<br/>WASD + mouse · E talk · Q discern (hold) · Tab verse wheel · P pray · Mobile: left stick + buttons</p>
+      <button id="btn-begin">☩ Enter the Town</button>
+      <button id="btn-continue" class="hidden">Continue (saved)</button>
+    </div>
+    <!-- Mobile controls -->
+    <div id="touch-ui" class="hidden">
+      <div id="stick"><div id="stick-knob"></div></div>
+      <div id="touch-btns">
+        <button data-act="interact">E</button>
+        <button data-act="discern">👁</button>
+        <button data-act="wheel">📖</button>
+        <button data-act="pray">🙏</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
